@@ -36,6 +36,8 @@
 
 	// Cap the device pixel ratio so very dense screens don't blow up canvas memory.
 	var MAX_DPR = 2;
+	// Páginas que se renderizan de inmediato al cargar (prioridad sobre el lazy).
+	var EAGER_PAGES = 3;
 	var pages = []; // { page, baseViewport, wrapper, canvas, renderedWidth, task }
 
 	function dpr() {
@@ -153,40 +155,60 @@
 		} );
 	}
 
+	// Build the placeholder wrapper for one page and register it for lazy render.
+	function buildPage( page, index ) {
+		var baseViewport = page.getViewport( { scale: 1 } );
+
+		var wrapper = document.createElement( 'div' );
+		wrapper.className = 'catalogo-pdf__page';
+		wrapper.id = 'catalogo-pdf-page-' + ( index + 1 );
+		wrapper.dataset.pageIndex = String( index );
+		// Reserve the correct aspect ratio so scroll position is stable before render.
+		wrapper.style.aspectRatio = baseViewport.width + ' / ' + baseViewport.height;
+
+		container.appendChild( wrapper );
+
+		var entry = {
+			page: page,
+			baseViewport: baseViewport,
+			wrapper: wrapper,
+			canvas: null,
+			renderedWidth: -1,
+			task: null,
+		};
+		pages[ index ] = entry;
+
+		observer.observe( wrapper );
+		return entry;
+	}
+
 	pdfjsLib.getDocument( cfg.url ).promise.then( function ( pdf ) {
-		var jobs = [];
-		for ( var n = 1; n <= pdf.numPages; n++ ) {
-			jobs.push( pdf.getPage( n ) );
+		// Fasear la obtención: primero las EAGER_PAGES (se renderizan ya), luego el
+		// resto (se construyen con su placeholder y el observer las renderiza lazy).
+		var eager = Math.min( EAGER_PAGES, pdf.numPages );
+		var firstJobs = [];
+		for ( var n = 1; n <= eager; n++ ) {
+			firstJobs.push( pdf.getPage( n ) );
 		}
-		return Promise.all( jobs );
-	} ).then( function ( pdfPages ) {
-		container.innerHTML = '';
 
-		pdfPages.forEach( function ( page, index ) {
-			var baseViewport = page.getViewport( { scale: 1 } );
-
-			var wrapper = document.createElement( 'div' );
-			wrapper.className = 'catalogo-pdf__page';
-			wrapper.id = 'catalogo-pdf-page-' + ( index + 1 );
-			wrapper.dataset.pageIndex = String( index );
-			// Reserve the correct aspect ratio so scroll position is stable before render.
-			wrapper.style.aspectRatio = baseViewport.width + ' / ' + baseViewport.height;
-
-			container.appendChild( wrapper );
-
-			pages.push( {
-				page: page,
-				baseViewport: baseViewport,
-				wrapper: wrapper,
-				canvas: null,
-				renderedWidth: -1,
-				task: null,
+		return Promise.all( firstJobs ).then( function ( firstPages ) {
+			container.innerHTML = '';
+			firstPages.forEach( function ( page, i ) {
+				renderPage( buildPage( page, i ) ); // prioridad: render inmediato
 			} );
 
-			observer.observe( wrapper );
-		} );
+			var restJobs = [];
+			for ( var m = eager + 1; m <= pdf.numPages; m++ ) {
+				restJobs.push( pdf.getPage( m ) );
+			}
 
-		addIndexLinks();
+			return Promise.all( restJobs ).then( function ( restPages ) {
+				restPages.forEach( function ( page, j ) {
+					buildPage( page, eager + j ); // resto: lazy vía observer
+				} );
+				addIndexLinks();
+			} );
+		} );
 	} ).catch( function () {
 		showError( 'No se pudo cargar el PDF.' );
 	} );
