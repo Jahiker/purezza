@@ -105,15 +105,18 @@ body.page-template-page-catalog {
     background: #1a1a1a;
 }
 
-/* spec: specs/portfolio-slider-vertical.md — FR-07: foto de galería completa (contain) con marco */
-.catalog-gallery__frame {
+/* spec: specs/portfolio-slider-vertical.md — FR-07: foto completa (contain) con marco.
+   v4.0: los slides cover comparten la misma estructura (clases .catalog-cover__*). */
+.catalog-gallery__frame,
+.catalog-cover__frame {
     width: 100%;
     height: 100%;
     padding: clamp(0.75rem, 2.5vh, 2rem);   /* marco de foto */
     box-sizing: border-box;
 }
 
-.catalog-gallery__figure {
+.catalog-gallery__figure,
+.catalog-cover__figure {
     margin: 0;                              /* reset del <figure> nativo */
     width: 100%;
     height: 100%;
@@ -122,7 +125,13 @@ body.page-template-page-catalog {
     justify-content: center;
 }
 
-.catalog-gallery__img {
+/* El figure del cover ancla los hotspots (position:absolute) — FR-06 v4.0 */
+.catalog-cover__figure {
+    position: relative;
+}
+
+.catalog-gallery__img,
+.catalog-cover__img {
     display: block;
     width: 100%;
     height: 100%;
@@ -238,8 +247,14 @@ body.page-template-page-catalog {
         top: var(--hs-y-m, var(--hs-y));
     }
 
-    /* Marco de galería más ajustado en mobile para aprovechar la pantalla */
-    .catalog-gallery__frame {
+    /* v4.0: en mobile no se muestra el preview del hotspot (el tap navega igual) */
+    .catalog-hotspot__preview {
+        display: none;
+    }
+
+    /* Marco más ajustado en mobile para aprovechar la pantalla (galería + cover v4.0) */
+    .catalog-gallery__frame,
+    .catalog-cover__frame {
         padding: 5px;
     }
 }
@@ -521,7 +536,8 @@ body.page-template-page-catalog {
         font-size: clamp(0.875rem, 4vw, 1.25rem);
     }
 
-    .catalog-index__group,
+    /* .catalog-index__group visible en mobile (los grupos con sub-hijos se muestran);
+       los subitems "flat" sueltos siguen ocultos para no saturar el stack móvil */
     .catalog-index__subitems--flat {
         display: none;
     }

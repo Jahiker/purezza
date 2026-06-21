@@ -39,9 +39,11 @@
         var loadAttr   = isFirst ? '' : ' loading="lazy"';
 
         if (slide.type === 'cover') {
+            // spec: specs/portfolio-slider-vertical.md — FR-07 v4.0: cover enmarcado (contain)
+            // con la misma estructura que galería; hotspots viven DENTRO del figure (FR-06 v4.0).
             var imgHtml;
             if (slide.image_url) {
-                var imgTag = '<img class="catalog-slide__img" src="' + escHtml(slide.image_url) + '" alt="' + escHtml(slide.alt) + '"' + fetchAttr + loadAttr + '>';
+                var imgTag = '<img class="catalog-cover__img" src="' + escHtml(slide.image_url) + '" alt="' + escHtml(slide.alt) + '"' + fetchAttr + loadAttr + '>';
                 // Imagen alternativa para mobile (≤767px); <source> hace el swap nativo + en resize.
                 imgHtml = slide.image_url_mobile
                     ? '<picture class="catalog-slide__picture">'
@@ -52,6 +54,7 @@
             } else {
                 imgHtml = '<div class="catalog-slide__placeholder"></div>';
             }
+            // Hotspots posicionados relativos al figure (coords vía --hs-x/--hs-y).
             var hotspotsHtml = (slide.hotspots || []).map(function (hs) {
                 var flipClass = hs.x > 60 ? ' catalog-hotspot--flip' : '';
                 var previewHtml = hs.preview_url
@@ -68,7 +71,11 @@
                     + previewHtml
                     + '</span>';
             }).join('');
-            return '<div class="swiper-slide catalog-slide catalog-slide--cover">' + imgHtml + hotspotsHtml + '</div>';
+            // Marco > figure (contain, position:relative) > imagen + hotspots dentro del figure.
+            var coverFrame = '<div class="catalog-cover__frame">'
+                + '<figure class="catalog-cover__figure">' + imgHtml + hotspotsHtml + '</figure>'
+                + '</div>';
+            return '<div class="swiper-slide catalog-slide catalog-slide--cover">' + coverFrame + '</div>';
         }
 
         if (slide.type === 'gallery_image') {
