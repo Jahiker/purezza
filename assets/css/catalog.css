@@ -1,0 +1,595 @@
+/* ─── Gotham — tipografía de marca (hosted locally) ───────────────────────── */
+
+@font-face {
+    font-family: 'Gotham';
+    src: url('../fonts/GOTHAM-LIGHT.OTF') format('opentype');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Gotham';
+    src: url('../fonts/Gotham Book.otf') format('opentype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* ─── Design tokens ───────────────────────────────────────────────────────── */
+
+:root {
+    --catalog-bg-dynamic: #F0E9DE;   /* background for section/index slides */
+    --catalog-fg-dynamic: #111111;   /* text color for section/index slides */
+    --catalog-font: 'Gotham', 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* ─── Layout ─────────────────────────────────────────────────────────────── */
+
+body.page-template-page-catalog {
+    margin: 0;
+    overflow: hidden;
+}
+
+/* Neutralize parent theme reset.css button hover/focus styles (background #c36 + color #fff).
+   fix: specs/fixes/hover-contrast-light-bg.md — reset.css aplica color:#fff en :hover/:focus,
+   que sobre el fondo claro deja el texto ilegible. El catálogo hereda siempre su color oscuro. */
+.catalog-slider button,
+.catalog-slider button:hover,
+.catalog-slider button:focus,
+.catalog-slider [role="button"],
+.catalog-slider [role="button"]:hover,
+.catalog-slider [role="button"]:focus {
+    background: transparent;
+    color: inherit;
+}
+
+.catalog-slider {
+    width: 100%;
+    height: calc(100dvh - var(--header-height, 70px));
+    position: relative;
+    overflow: hidden;
+    background: #F0E9DE;
+    font-family: var(--catalog-font);
+}
+
+/* ─── Swiper overrides ────────────────────────────────────────────────────── */
+
+.catalog-swiper {
+    width: 100%;
+    height: 100%;
+}
+
+/* GSAP owns all wrapper animation — kill Swiper's CSS transition */
+.catalog-swiper .swiper-wrapper {
+    position: relative;
+    width: 100%;
+    transition-duration: 0ms !important;
+}
+
+.catalog-slide {
+    width: 100% !important;
+    height: 100% !important;
+    overflow: hidden;
+    will-change: transform;
+}
+
+/* ─── Cover + Gallery slides (image full-bleed) ───────────────────────────── */
+
+.catalog-slide--cover,
+.catalog-slide--gallery {
+    background: #FBF9EA;
+    position: relative; /* anchor for absolutely positioned overlays (hotspots, índice link) */
+}
+
+.catalog-slide__img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    user-select: none;
+    pointer-events: none;
+}
+
+/* Wrapper <picture> cuando hay imagen mobile alternativa (cover) */
+.catalog-slide__picture {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.catalog-slide__placeholder {
+    width: 100%;
+    height: 100%;
+    background: #1a1a1a;
+}
+
+/* spec: specs/portfolio-slider-vertical.md — FR-07: foto de galería completa (contain) con marco */
+.catalog-gallery__frame {
+    width: 100%;
+    height: 100%;
+    padding: clamp(0.75rem, 2.5vh, 2rem);   /* marco de foto */
+    box-sizing: border-box;
+}
+
+.catalog-gallery__figure {
+    margin: 0;                              /* reset del <figure> nativo */
+    width: 100%;
+    height: 100%;
+    display: flex;                          /* centra la imagen contenida */
+    align-items: center;
+    justify-content: center;
+}
+
+.catalog-gallery__img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;                    /* foto completa, sin recorte */
+    user-select: none;
+    pointer-events: none;
+}
+
+/* Galería → enlace al índice: hit-area transparente sobre el "‹ Indice" ya impreso en la imagen */
+.catalog-index-link {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: clamp(7rem, 14vw, 14rem);
+    height: clamp(2.5rem, 7vh, 5rem);
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    z-index: 5;
+}
+
+.catalog-index-link:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: -4px;
+}
+
+/* spec: specs/portfolio-slider-vertical.md — FR-08: lupa de aumento (solo táctil) */
+@media (pointer: coarse) {
+    .catalog-gallery__figure {
+        position: relative;                 /* contexto para la lente absoluta */
+    }
+
+    .catalog-gallery__lens {
+        position: absolute;
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        background-repeat: no-repeat;
+        border: 2px solid rgba(255, 255, 255, 0.9);
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+        pointer-events: none;               /* no intercepta el toque */
+        z-index: 10;
+        will-change: left, top, background-position;
+    }
+}
+
+/* ─── Cover hotspots (transparent + hover preview) ────────────────────────── */
+
+.catalog-hotspot {
+    position: absolute;
+    /* coords desde CSS vars (--hs-x/--hs-y); translate centra el área en el punto */
+    left: var(--hs-x);
+    top: var(--hs-y);
+    transform: translate(-50%, -50%);
+    width: 48px;
+    height: 48px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;   /* fully invisible in resting state */
+    cursor: pointer;
+    z-index: 2;
+}
+
+.catalog-hotspot:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+.catalog-hotspot__preview {
+    position: absolute;
+    bottom: 50%;
+    left: calc(100% + 12px);   /* default: preview to the right of the hotspot */
+    transform: translateY(8px);
+    max-width: 220px;
+    width: max-content;
+    padding: 6px;
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.28s ease, transform 0.28s ease;
+}
+
+.catalog-hotspot--flip .catalog-hotspot__preview {
+    left: auto;
+    right: calc(100% + 12px);  /* flip to the left when near the right edge */
+}
+
+.catalog-hotspot__preview-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 3px;
+}
+
+.catalog-hotspot:hover .catalog-hotspot__preview,
+.catalog-hotspot:focus-visible .catalog-hotspot__preview {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(-20px);
+}
+
+/* Mobile: coords de hotspot propias; fallback por-valor a desktop si la var mobile no existe */
+@media (max-width: 767px) {
+    .catalog-hotspot {
+        left: var(--hs-x-m, var(--hs-x));
+        top: var(--hs-y-m, var(--hs-y));
+    }
+
+    /* Marco de galería más ajustado en mobile para aprovechar la pantalla */
+    .catalog-gallery__frame {
+        padding: 5px;
+    }
+}
+
+/* ─── Section slide (dynamic portada) ────────────────────────────────────── */
+
+.catalog-slide--section {
+    background: var(--catalog-bg-dynamic);
+    color: var(--catalog-fg-dynamic);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.catalog-section {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* fix: specs/fixes/catalog-section-style-corrections.md */
+    gap: 0 3vw;
+    padding: 0 8vw;
+    width: 100%;
+}
+
+.catalog-section__number {
+    font-size: clamp(3rem, 10vw, 9rem);    /* 9rem @ 1440px */
+    font-weight: 500; /* fix: specs/fixes/catalog-section-style-corrections.md */
+    line-height: 1;
+    letter-spacing: -0.03em;
+    flex-shrink: 0;
+    min-width: 14vw;
+}
+
+.catalog-section__number::after {
+    content: '.'; /* fix: specs/fixes/catalog-section-style-corrections.md */
+}
+
+.catalog-section__divider {
+    width: 1px;
+    height: 35vh;
+    background: currentColor;
+    opacity: 0.35;
+    flex-shrink: 0;
+}
+
+.catalog-section__title {
+    font-size: clamp(1.75rem, 6.1vw, 5.5rem);  /* 5.5rem @ 1440px */
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1.05;
+}
+
+.catalog-section__nav {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3em;
+}
+
+/* ─── Index slide (auto table of contents) ───────────────────────────────── */
+
+.catalog-slide--index {
+    background: var(--catalog-bg-dynamic);
+    color: var(--catalog-fg-dynamic);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.catalog-index {
+    display: flex;
+    align-items: center;
+    gap: 0 4vw;
+    padding: 0 6vw;
+    width: 100%;
+    height: 100%;
+}
+
+.catalog-index__label {
+    font-size: clamp(2rem, 4.44vw, 4rem);   /* fix: specs/fixes/catalog-index-layout-corrections.md — máx 4rem (4rem/1440×100vw) */
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    opacity: 0.85;
+    flex-shrink: 0;
+    align-self: center;
+}
+
+.catalog-index__grid {
+    /* fix: specs/fixes/catalog-index-layout-corrections.md — 5 columnas, 1 tarjeta por columna, stagger impar-arriba/par-abajo */
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    align-items: start;
+    gap: 0 3vw;
+    flex: 1;
+    align-self: center;
+    --index-stagger: 16vh;              /* desplazamiento vertical de las columnas pares */
+}
+
+.catalog-index__card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25em;
+    position: relative;                 /* ancla la línea decorativa (::after) */
+}
+
+/* Stagger: columnas pares (02, 04) bajan; impares (01, 03, 05) quedan arriba */
+.catalog-index__card:nth-child(even) {
+    transform: translateY(var(--index-stagger));
+}
+
+/* Línea decorativa en columnas intermedias (no la primera ni la última) */
+.catalog-index__card:not(:first-child):not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: -1.5vw;
+    width: clamp(3rem, 7vw, 7rem);
+    height: 1px;
+    background: currentColor;
+    opacity: 0.4;
+}
+/* tarjeta abajo (par) → línea arriba, al nivel de las columnas impares */
+.catalog-index__card:nth-child(even)::after {
+    top: calc(-1 * var(--index-stagger) + 2.2em);
+}
+/* tarjeta arriba (impar intermedia, col 03) → línea abajo de su contenido */
+.catalog-index__card:nth-child(odd):not(:first-child):not(:last-child)::after {
+    top: calc(100% + 3vh);
+}
+
+.catalog-index__card-number {
+    font-size: clamp(2rem, 5.6vw, 5rem);     /* 5rem @ 1440px */
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.03em;
+}
+
+.catalog-index__card-title {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-family: inherit;
+    color: inherit;
+    font-size: clamp(0.875rem, 1.9vw, 1.75rem); /* 1.75rem @ 1440px */
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1.1;
+    text-align: left;
+    /* luxury hover: gentle fade + slight letter expansion, no color/background shift */
+    transition: opacity 0.3s ease, letter-spacing 0.3s ease;
+}
+
+.catalog-index__card-title:hover,
+.catalog-index__card-title:focus-visible {
+    background: none !important;  /* guard against external theme red hover */
+    color: inherit;
+    opacity: 0.8;   /* fix: specs/fixes/hover-contrast-light-bg.md — fade sutil que mantiene contraste en fondo claro */
+    letter-spacing: 0.07em;
+}
+
+.catalog-index__card-title:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+    border-radius: 2px;
+}
+
+.catalog-index__group {
+    margin-top: 0.35em;
+}
+
+.catalog-index__group-label {
+    /* fix: specs/fixes/catalog-index-layout-corrections.md — normal, negro y bold (antes italic/400/0.65) */
+    display: block;
+    font-size: clamp(0.7rem, 1.2vw, 1.1rem);  /* 1.1rem @ 1440px */
+    font-weight: 700;
+    font-style: normal;
+    color: var(--catalog-fg-dynamic);
+    opacity: 1;
+    margin-bottom: 0.15em;
+}
+
+.catalog-index__subitems {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.05em;
+}
+
+.catalog-index__subitems--flat {
+    margin-top: 0.35em;
+}
+
+.catalog-index__subitem {
+    font-size: clamp(0.6rem, 1vw, 0.9rem);    /* 0.9rem @ 1440px */
+    font-weight: 300;
+    opacity: 0.7;
+    line-height: 1.4;
+}
+
+/* Navigable subitem: reset li opacity so the button owns it (opacity compounds otherwise) */
+.catalog-index__subitem--nav {
+    opacity: 1;
+}
+
+.catalog-index__subitem-btn {
+    display: inline;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    color: inherit;
+    text-align: left;
+    line-height: inherit;
+    transition: opacity 0.18s ease;  /* match .catalog-nav-item hover */
+}
+
+.catalog-index__subitem-btn:hover,
+.catalog-index__subitem-btn:focus-visible {
+    opacity: 0.8;   /* fix: specs/fixes/hover-contrast-light-bg.md — mantener contraste en fondo claro */
+}
+
+.catalog-index__subitem-btn:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
+/* ─── Index slide — mobile (stack layout) ────────────────────────────────── */
+
+@media (max-width: 767px) {
+    .catalog-index {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 5vh 8vw;
+        gap: 1.5rem 0;
+        height: auto;
+        overflow-y: auto;
+        justify-content: flex-start;
+        align-self: flex-start;
+    }
+
+    .catalog-index__label {
+        font-size: clamp(2rem, 10vw, 3.5rem);   /* 3.5rem @ 350px breakpoint */
+    }
+
+    .catalog-index__grid {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+        width: 100%;
+    }
+
+    /* fix: specs/fixes/catalog-index-layout-corrections.md — sin stagger ni líneas en stack móvil */
+    .catalog-index__card:nth-child(even) {
+        transform: none;
+    }
+
+    .catalog-index__card::after {
+        display: none;
+    }
+
+    .catalog-index__card-number {
+        font-size: clamp(1.5rem, 8vw, 3rem);
+    }
+
+    .catalog-index__card-title {
+        font-size: clamp(0.875rem, 4vw, 1.25rem);
+    }
+
+    .catalog-index__group,
+    .catalog-index__subitems--flat {
+        display: none;
+    }
+}
+
+/* ─── Nav items (section + index) ────────────────────────────────────────── */
+
+.catalog-nav-item {
+    background: none;
+    border: none;
+    padding: 0.2em 0;
+    cursor: pointer;
+    font-size: clamp(0.875rem, 1.4vw, 1.25rem); /* 1.25rem @ 1440px */
+    font-weight: 300; /* fix: specs/fixes/catalog-section-style-corrections.md */
+    font-family: inherit;
+    color: inherit;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5em;
+    text-align: left;
+    letter-spacing: 0.01em;
+    transition: opacity 0.18s ease;
+}
+
+.catalog-nav-item:hover {
+    opacity: 0.8;   /* fix: specs/fixes/hover-contrast-light-bg.md — mantener contraste en fondo claro */
+}
+
+.catalog-nav-item:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+    border-radius: 2px;
+}
+
+.catalog-nav-item__dot {
+    opacity: 0.4;
+    font-size: 1.2em;
+    line-height: 1;
+}
+
+
+/* ─── Empty state ─────────────────────────────────────────────────────────── */
+
+.catalog-empty {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #888;
+    font-family: var(--catalog-font);
+    font-size: 0.9rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+/* ─── No-JS fallback ──────────────────────────────────────────────────────── */
+
+.catalog-fallback {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    color: #aaa;
+    font-family: var(--catalog-font);
+    text-align: center;
+    padding: 2rem;
+}

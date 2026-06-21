@@ -1,0 +1,245 @@
+{
+    "key": "group_catalog_section_fields",
+    "title": "Catalog Section Fields",
+    "fields": [
+        {
+            "key": "field_catalog_section_type",
+            "label": "Tipo de Sección",
+            "name": "section_type",
+            "type": "radio",
+            "instructions": "Define cómo se renderiza este slide en el catálogo.",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": { "width": "", "class": "", "id": "" },
+            "choices": {
+                "cover":   "Portada (imagen full-bleed)",
+                "index":   "Índice automático",
+                "section": "Portada de sección dinámica",
+                "gallery": "Galería de imágenes"
+            },
+            "default_value": "section",
+            "layout": "horizontal",
+            "return_format": "value",
+            "allow_null": 0,
+            "other_choice": 0,
+            "save_other_choice": 0
+        },
+        {
+            "key": "field_catalog_cover_image",
+            "label": "Imagen de Portada",
+            "name": "cover_image",
+            "type": "image",
+            "instructions": "Imagen exportada del catálogo (full-bleed). Solo visible cuando el tipo es \"Portada\".",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_catalog_section_type",
+                        "operator": "==",
+                        "value": "cover"
+                    }
+                ]
+            ],
+            "wrapper": { "width": "", "class": "", "id": "" },
+            "return_format": "array",
+            "library": "all",
+            "min_width": "",
+            "min_height": "",
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "",
+            "mime_types": "jpg,jpeg,png,webp",
+            "preview_size": "medium",
+            "allow_in_bindings": 0
+        },
+        {
+            "key": "field_catalog_cover_image_mobile",
+            "label": "Imagen de Portada (Mobile)",
+            "name": "cover_image_mobile",
+            "type": "image",
+            "instructions": "Opcional. Imagen alternativa para mobile (≤767px). Si se deja vacía, se usa la imagen de portada de desktop.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_catalog_section_type",
+                        "operator": "==",
+                        "value": "cover"
+                    }
+                ]
+            ],
+            "wrapper": { "width": "", "class": "", "id": "" },
+            "return_format": "array",
+            "library": "all",
+            "min_width": "",
+            "min_height": "",
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "",
+            "mime_types": "jpg,jpeg,png,webp",
+            "preview_size": "medium",
+            "allow_in_bindings": 0
+        },
+        {
+            "key": "field_catalog_hotspots",
+            "label": "Hotspots",
+            "name": "hotspots",
+            "type": "repeater",
+            "instructions": "Áreas invisibles sobre la imagen que al hacer hover muestran un preview. Solo para slides tipo Portada.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_catalog_section_type",
+                        "operator": "==",
+                        "value": "cover"
+                    }
+                ]
+            ],
+            "wrapper": { "width": "", "class": "", "id": "" },
+            "min": 0,
+            "max": 0,
+            "layout": "table",
+            "button_label": "Añadir hotspot",
+            "sub_fields": [
+                {
+                    "key": "field_catalog_hotspot_x",
+                    "label": "X desktop (%)",
+                    "name": "hotspot_x",
+                    "type": "number",
+                    "instructions": "0 = izquierda, 100 = derecha",
+                    "required": 1,
+                    "min": 0,
+                    "max": 100,
+                    "step": 0.5,
+                    "default_value": 50,
+                    "wrapper": { "width": "8%", "class": "", "id": "" }
+                },
+                {
+                    "key": "field_catalog_hotspot_x_mobile",
+                    "label": "X mobile (%)",
+                    "name": "hotspot_x_mobile",
+                    "type": "number",
+                    "instructions": "Opcional. Si vacío, usa la X de desktop.",
+                    "required": 0,
+                    "min": 0,
+                    "max": 100,
+                    "step": 0.5,
+                    "wrapper": { "width": "8%", "class": "", "id": "" }
+                },
+                {
+                    "key": "field_catalog_hotspot_y",
+                    "label": "Y desktop (%)",
+                    "name": "hotspot_y",
+                    "type": "number",
+                    "instructions": "0 = arriba, 100 = abajo",
+                    "required": 1,
+                    "min": 0,
+                    "max": 100,
+                    "step": 0.5,
+                    "default_value": 50,
+                    "wrapper": { "width": "8%", "class": "", "id": "" }
+                },
+                {
+                    "key": "field_catalog_hotspot_y_mobile",
+                    "label": "Y mobile (%)",
+                    "name": "hotspot_y_mobile",
+                    "type": "number",
+                    "instructions": "Opcional. Si vacío, usa la Y de desktop.",
+                    "required": 0,
+                    "min": 0,
+                    "max": 100,
+                    "step": 0.5,
+                    "wrapper": { "width": "8%", "class": "", "id": "" }
+                },
+                {
+                    "key": "field_catalog_hotspot_target",
+                    "label": "Sección destino",
+                    "name": "hotspot_target",
+                    "type": "post_object",
+                    "instructions": "Slide al que navega al hacer clic.",
+                    "required": 1,
+                    "post_type": ["catalog_section"],
+                    "taxonomy": [],
+                    "filters": ["search"],
+                    "return_format": "object",
+                    "ui": 1,
+                    "allow_null": 0,
+                    "wrapper": { "width": "28%", "class": "", "id": "" }
+                },
+                {
+                    "key": "field_catalog_hotspot_preview_image",
+                    "label": "Imagen preview",
+                    "name": "hotspot_preview_image",
+                    "type": "image",
+                    "instructions": "Imagen pequeña que aparece al hacer hover. Opcional.",
+                    "required": 0,
+                    "return_format": "array",
+                    "library": "all",
+                    "mime_types": "jpg,jpeg,png,webp",
+                    "preview_size": "medium",
+                    "wrapper": { "width": "24%", "class": "", "id": "" }
+                },
+                {
+                    "key": "field_catalog_hotspot_label",
+                    "label": "Etiqueta (aria-label)",
+                    "name": "hotspot_label",
+                    "type": "text",
+                    "instructions": "Texto accesible. Si vacío, usa el título de la sección destino.",
+                    "required": 0,
+                    "wrapper": { "width": "16%", "class": "", "id": "" }
+                }
+            ]
+        },
+        {
+            "key": "field_catalog_gallery_images",
+            "label": "Imágenes de Galería",
+            "name": "gallery_images",
+            "type": "gallery",
+            "instructions": "Selecciona múltiples imágenes a la vez. Puedes reordenarlas con drag-and-drop.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_catalog_section_type",
+                        "operator": "==",
+                        "value": "gallery"
+                    }
+                ]
+            ],
+            "wrapper": { "width": "", "class": "", "id": "" },
+            "return_format": "array",
+            "library": "all",
+            "min": 0,
+            "max": 0,
+            "insert": "append",
+            "preview_size": "medium",
+            "mime_types": "jpg,jpeg,png,webp",
+            "allow_in_bindings": 0
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "catalog_section"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": [
+        "the_content", "excerpt", "discussion", "comments",
+        "revisions", "slug", "author", "format",
+        "featured_image", "tags", "send-trackbacks"
+    ],
+    "active": true,
+    "description": "Campos para cada sección del catálogo Purezza (v2.0).",
+    "show_in_rest": 0
+}

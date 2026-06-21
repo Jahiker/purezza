@@ -1,0 +1,14 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Dependencias / build (por si se añaden en el futuro)
+node_modules/
+vendor/composer/
+*.log
+
+# Artefactos de deploy
+*.zip
