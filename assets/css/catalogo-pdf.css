@@ -4,21 +4,37 @@
 .catalogo-pdf {
 	width: 100%;
 	margin: 0;
-	padding: 0;
-	background: #FBF9EA;
+	/* Fondo del template = mismo que el catálogo (token --catalog-bg-dynamic). */
+	background: #F0E9DE;
+	/* Separación vertical entre páginas del PDF (ajustable). */
+	--catalogo-pdf-gap: clamp(12px, 2vw, 32px);
+	/* Ancho máximo del PDF, estilo visor de navegador (ajustable). */
+	--catalogo-pdf-max-width: 1200px;
+	/* Padding alrededor: deja ver el fondo claro arriba/abajo y a los lados. */
+	padding: var(--catalogo-pdf-gap) clamp(12px, 3vw, 48px);
+	box-sizing: border-box;
+	/* Sombra de cada página (efecto "elevada" sobre el fondo). Ajustable. */
+	--catalogo-pdf-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 }
 
 .catalogo-pdf__viewer {
 	width: 100%;
+	max-width: var(--catalogo-pdf-max-width);
 	margin: 0 auto;
+	display: flex;
+	flex-direction: column;
+	/* Gap transparente: deja ver el fondo del template entre páginas. */
+	gap: var(--catalogo-pdf-gap);
 }
 
 /* One page = one full-width block. aspect-ratio is set inline (per page) so the
-   placeholder reserves the right height before its canvas renders. */
+   placeholder reserves the right height before its canvas renders. Sin fondo
+   propio: la separación entre páginas muestra el fondo del template. */
 .catalogo-pdf__page {
 	display: block;
 	width: 100%;
-	background: #FBF9EA;
+	background: transparent;
+	box-shadow: var(--catalogo-pdf-shadow);
 }
 
 .catalogo-pdf__canvas {
