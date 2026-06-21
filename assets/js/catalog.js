@@ -434,9 +434,10 @@
         }
 
         swiperEl.addEventListener('touchstart', function (e) {
-            var fig = e.target.closest('.catalog-gallery__figure');
+            // spec: specs/portfolio-slider-vertical.md — FR-08 v5.1: lupa también en cover
+            var fig = e.target.closest('.catalog-gallery__figure, .catalog-cover__figure');
             if (!fig) return;
-            var image = fig.querySelector('.catalog-gallery__img');
+            var image = fig.querySelector('.catalog-gallery__img, .catalog-cover__img');
             if (!image) return;
             var t = e.touches[0];
             figure = fig; img = image; startX = t.clientX; startY = t.clientY;
