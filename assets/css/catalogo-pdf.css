@@ -32,9 +32,27 @@
    propio: la separación entre páginas muestra el fondo del template. */
 .catalogo-pdf__page {
 	display: block;
+	position: relative; /* ancla para los hotspots del índice */
 	width: 100%;
 	background: transparent;
 	box-shadow: var(--catalogo-pdf-shadow);
+	scroll-margin-top: 1rem; /* aire al saltar a una sección */
+}
+
+/* Zonas clickeables del índice: totalmente transparentes (sin realce). */
+.catalogo-pdf__hotspot {
+	position: absolute;
+	display: block;
+	cursor: pointer;
+	background: transparent;
+}
+
+.catalogo-pdf__hotspot:hover,
+.catalogo-pdf__hotspot:focus,
+.catalogo-pdf__hotspot:focus-visible {
+	background: transparent;
+	box-shadow: none;
+	outline: none;
 }
 
 .catalogo-pdf__canvas {
