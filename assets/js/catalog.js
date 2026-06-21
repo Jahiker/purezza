@@ -4,6 +4,9 @@
     var data = (typeof purezzaCatalog !== 'undefined' && purezzaCatalog.slides) ? purezzaCatalog.slides : [];
     if (!data.length) return;
 
+    // spec: specs/portfolio-slider-vertical.md — FR-09: modo de visualización.
+    var mode = (typeof purezzaCatalog !== 'undefined' && purezzaCatalog.mode) ? purezzaCatalog.mode : 'portfolio';
+
     // Slide index of the auto-generated index (for the gallery "‹ Indice" link); -1 if none.
     var indexSlideIdx = data.findIndex(function (s) { return s.type === 'index'; });
 
@@ -161,6 +164,96 @@
         }
 
         return '<div class="swiper-slide catalog-slide catalog-slide--unknown"></div>';
+    }
+
+    /* ── Presentation mode (FR-09): static stack, native scroll, no Swiper/GSAP ── */
+    // spec: specs/portfolio-slider-vertical.md — FR-09
+    function renderPresentation() {
+        var container = document.getElementById('catalog-presentation');
+        if (!container) return;
+
+        // Reuse renderSlide per slide; each block is an anchor (#catalog-pres-{index}).
+        container.innerHTML = data.map(function (slide, i) {
+            return '<div class="catalog-presentation__item" id="catalog-pres-' + i + '">'
+                + renderSlide(slide, i)
+                + '</div>';
+        }).join('');
+
+        // Lazy loading via IntersectionObserver — first block loads eagerly (LCP),
+        // the rest defer their src/srcset until they approach the viewport.
+        var lazyImgs = [];
+        Array.prototype.forEach.call(
+            container.querySelectorAll('.catalog-presentation__item'),
+            function (item, i) {
+                if (i === 0) return; // eager
+                Array.prototype.forEach.call(item.querySelectorAll('img'), function (img) {
+                    var src = img.getAttribute('src');
+                    if (src) { img.dataset.src = src; img.removeAttribute('src'); }
+                    var pic = img.parentElement;
+                    if (pic && pic.tagName === 'PICTURE') {
+                        Array.prototype.forEach.call(pic.querySelectorAll('source'), function (s) {
+                            var ss = s.getAttribute('srcset');
+                            if (ss) { s.dataset.srcset = ss; s.removeAttribute('srcset'); }
+                        });
+                    }
+                    lazyImgs.push(img);
+                });
+            }
+        );
+
+        var loadImg = function (img) {
+            if (img.dataset.src) { img.src = img.dataset.src; delete img.dataset.src; }
+            var pic = img.parentElement;
+            if (pic && pic.tagName === 'PICTURE') {
+                Array.prototype.forEach.call(pic.querySelectorAll('source'), function (s) {
+                    if (s.dataset.srcset) { s.srcset = s.dataset.srcset; delete s.dataset.srcset; }
+                });
+            }
+        };
+
+        if ('IntersectionObserver' in window && lazyImgs.length) {
+            var io = new IntersectionObserver(function (entries, obs) {
+                entries.forEach(function (entry) {
+                    if (!entry.isIntersecting) return;
+                    loadImg(entry.target);
+                    obs.unobserve(entry.target);
+                });
+            }, { rootMargin: '600px 0px' });
+            lazyImgs.forEach(function (img) { io.observe(img); });
+        } else {
+            lazyImgs.forEach(loadImg); // no IO support → load all
+        }
+
+        // Nav / hotspots / index-link → scroll to the target anchor (no animation).
+        var PRES_NAV = '.catalog-nav-item, .catalog-hotspot, .catalog-index__subitem-btn, .catalog-index-link';
+        var scrollToTarget = function (el) {
+            if (!el) return;
+            var idx = parseInt(el.dataset.target, 10);
+            if (isNaN(idx)) return;
+            var anchor = document.getElementById('catalog-pres-' + idx);
+            if (!anchor) return;
+            // behavior:'instant' overrides any CSS scroll-behavior:smooth del tema → "sin animaciones".
+            try {
+                anchor.scrollIntoView({ behavior: 'instant', block: 'start' });
+            } catch (e) {
+                window.scrollTo(0, anchor.getBoundingClientRect().top + window.pageYOffset);
+            }
+        };
+        container.addEventListener('click', function (e) {
+            scrollToTarget(e.target.closest(PRES_NAV));
+        });
+        container.addEventListener('keydown', function (e) {
+            if (e.key !== 'Enter' && e.key !== ' ' && e.key !== 'Spacebar') return;
+            var el = e.target.closest(PRES_NAV);
+            if (!el) return;
+            e.preventDefault();
+            scrollToTarget(el);
+        });
+    }
+
+    if (mode === 'presentation') {
+        renderPresentation();
+        return; // do not touch Swiper / GSAP in presentation mode
     }
 
     /* ── Init ────────────────────────────────────────────────────────────── */

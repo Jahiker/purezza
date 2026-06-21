@@ -304,29 +304,52 @@ if ( $all_sections ) {
 
 // ── Output ────────────────────────────────────────────────────────────────────
 
+// spec: specs/portfolio-slider-vertical.md — FR-09: modalidad del template.
+$display_mode = get_field( 'display_mode', get_the_ID() ) ?: 'portfolio';
+
+// Body class por modo: en presentación reactiva el scroll nativo (ver catalog.css).
+add_filter( 'body_class', function ( $classes ) use ( $display_mode ) {
+	$classes[] = 'catalog-mode-' . $display_mode;
+	return $classes;
+} );
+
 get_header();
 
 // purezza-catalog is registered by wp_enqueue_scripts (fired inside get_header).
 wp_localize_script( 'purezza-catalog', 'purezzaCatalog', [
 	'slides' => $slides_data,
+	'mode'   => $display_mode,
 ] );
 ?>
 
-<main id="catalog-slider" class="catalog-slider" role="main" aria-label="Catálogo Purezza">
+<?php if ( 'presentation' === $display_mode ) : ?>
 
-	<?php if ( empty( $slides_data ) ) : ?>
+	<main id="catalog-presentation" class="catalog-presentation" role="main" aria-label="Catálogo Purezza">
+		<?php if ( empty( $slides_data ) ) : ?>
+			<p class="catalog-empty">No hay contenido disponible.</p>
+		<?php endif; ?>
+		<?php // Los bloques (.catalog-presentation__item) los arma catalog.js reusando renderSlide. ?>
+	</main>
 
-		<p class="catalog-empty">No hay contenido disponible.</p>
+<?php else : ?>
 
-	<?php else : ?>
+	<main id="catalog-slider" class="catalog-slider" role="main" aria-label="Catálogo Purezza">
 
-		<div class="swiper catalog-swiper">
-			<div class="swiper-wrapper"></div>
-		</div>
+		<?php if ( empty( $slides_data ) ) : ?>
 
-	<?php endif; ?>
+			<p class="catalog-empty">No hay contenido disponible.</p>
 
-</main>
+		<?php else : ?>
+
+			<div class="swiper catalog-swiper">
+				<div class="swiper-wrapper"></div>
+			</div>
+
+		<?php endif; ?>
+
+	</main>
+
+<?php endif; ?>
 
 <?php wp_footer(); ?>
 </body>

@@ -46,6 +46,29 @@ function purezza_enqueue_catalog_assets() {
 		return;
 	}
 
+	// spec: specs/portfolio-slider-vertical.md — FR-09: assets condicionales al modo.
+	// Portafolio carga Swiper + GSAP; Presentación NO (stack con scroll nativo + IO).
+	$mode = get_field( 'display_mode', get_queried_object_id() ) ?: 'portfolio';
+
+	if ( 'presentation' === $mode ) {
+		wp_enqueue_style(
+			'purezza-catalog',
+			get_stylesheet_directory_uri() . '/assets/css/catalog.css',
+			[],
+			filemtime( get_stylesheet_directory() . '/assets/css/catalog.css' )
+		);
+
+		wp_enqueue_script(
+			'purezza-catalog',
+			get_stylesheet_directory_uri() . '/assets/js/catalog.js',
+			[],
+			filemtime( get_stylesheet_directory() . '/assets/js/catalog.js' ),
+			true
+		);
+		return;
+	}
+
+	// Portafolio (default)
 	wp_enqueue_style(
 		'purezza-swiper',
 		get_stylesheet_directory_uri() . '/assets/css/vendor/swiper.min.css',
@@ -98,6 +121,38 @@ function purezza_register_catalog_acf_fields() {
 	if ( ! function_exists( 'acf_add_local_field_group' ) ) {
 		return;
 	}
+
+	// spec: specs/portfolio-slider-vertical.md — FR-09: modalidad del template (página).
+	acf_add_local_field_group( [
+		'key'      => 'group_catalog_page_fields',
+		'title'    => 'Catálogo — Modalidad',
+		'fields'   => [
+			[
+				'key'           => 'field_catalog_display_mode',
+				'label'         => 'Modalidad del catálogo',
+				'name'          => 'display_mode',
+				'type'          => 'radio',
+				'instructions'  => 'Portafolio: slider vertical animado. Presentación: stack de imágenes con scroll nativo (tipo documento).',
+				'required'      => 0,
+				'choices'       => [
+					'portfolio'    => 'Portafolio (slider animado)',
+					'presentation' => 'Presentación (stack con scroll)',
+				],
+				'default_value' => 'portfolio',
+				'layout'        => 'vertical',
+				'return_format' => 'value',
+			],
+		],
+		'location' => [
+			[
+				[
+					'param'    => 'page_template',
+					'operator' => '==',
+					'value'    => 'page-catalog.php',
+				],
+			],
+		],
+	] );
 
 	acf_add_local_field_group( [
 		'key'    => 'group_catalog_section_fields',

@@ -39,7 +39,13 @@ body.page-template-page-catalog {
 .catalog-slider button:focus,
 .catalog-slider [role="button"],
 .catalog-slider [role="button"]:hover,
-.catalog-slider [role="button"]:focus {
+.catalog-slider [role="button"]:focus,
+.catalog-presentation button,
+.catalog-presentation button:hover,
+.catalog-presentation button:focus,
+.catalog-presentation [role="button"],
+.catalog-presentation [role="button"]:hover,
+.catalog-presentation [role="button"]:focus {
     background: transparent;
     color: inherit;
 }
@@ -608,4 +614,83 @@ body.page-template-page-catalog {
     font-family: var(--catalog-font);
     text-align: center;
     padding: 2rem;
+}
+
+/* ─── FR-09: modo Presentación (stack estático, scroll nativo) ─────────────── */
+/* spec: specs/portfolio-slider-vertical.md — FR-09 */
+
+/* Reactiva el scroll nativo (el modo Portafolio fija overflow:hidden en el body). */
+body.page-template-page-catalog.catalog-mode-presentation {
+    overflow: visible;
+    overflow-x: hidden;
+}
+
+.catalog-presentation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(1rem, 2.22vw, 2rem);            /* gap entre slides */
+    width: 100%;
+    box-sizing: border-box;
+    /* top/bottom: clamp(1rem, 2rem); left/right: clamp(0.5rem, 1rem) — vw = max_px/1440×100 */
+    padding: clamp(1rem, 2.22vw, 2rem) clamp(0.5rem, 1.11vw, 1rem);
+    background: #F0E9DE;
+    font-family: var(--catalog-font);
+}
+
+.catalog-presentation__item {
+    width: 100%;
+    max-width: 1100px;                         /* ancho máximo de la columna */
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.18);/* sombra por bloque */
+    position: relative;
+    overflow: hidden;
+    background: #FBF9EA;
+}
+
+/* Neutraliza el dimensionado full-viewport del markup reusado de renderSlide:
+   en el stack cada bloque toma la altura natural de su contenido. */
+.catalog-presentation .catalog-slide {
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible;
+    will-change: auto;
+}
+
+/* Tipos imagen (cover / gallery): la imagen manda la altura, sin marco interno. */
+.catalog-presentation .catalog-cover__frame,
+.catalog-presentation .catalog-gallery__frame {
+    height: auto;
+    padding: 0;
+}
+
+.catalog-presentation .catalog-cover__figure,
+.catalog-presentation .catalog-gallery__figure {
+    height: auto;
+    display: block;
+}
+
+.catalog-presentation .catalog-cover__img,
+.catalog-presentation .catalog-gallery__img {
+    width: 100%;
+    height: auto;                              /* aspecto natural dentro del max-width */
+    object-fit: contain;
+}
+
+/* Tipos HTML (section / index): bloque de página de altura cómoda, no full-viewport. */
+.catalog-presentation .catalog-slide--section,
+.catalog-presentation .catalog-slide--index {
+    min-height: 80vh;
+}
+
+.catalog-presentation .catalog-section,
+.catalog-presentation .catalog-index {
+    height: auto;
+    min-height: 80vh;
+}
+
+/* Hotspots del cover: visibles en desktop, ocultos en mobile (presentación). */
+@media (max-width: 767px) {
+    .catalog-presentation .catalog-hotspot {
+        display: none;
+    }
 }
