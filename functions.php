@@ -23,3 +23,4 @@ function hello_elementor_child_enqueue_scripts() {
 add_action( 'wp_enqueue_scripts', 'hello_elementor_child_enqueue_scripts', 20 );
 
 require_once get_stylesheet_directory() . '/inc/catalog-cpt.php';
+require_once get_stylesheet_directory() . '/inc/catalogo-pdf.php';

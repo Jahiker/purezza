@@ -1,0 +1,45 @@
+{
+    "key": "group_catalogo_pdf_fields",
+    "title": "Catálogo PDF",
+    "fields": [
+        {
+            "key": "field_catalogo_pdf_file",
+            "label": "Archivo PDF del catálogo",
+            "name": "catalog_pdf",
+            "aria-label": "",
+            "type": "file",
+            "instructions": "Subí el PDF que se renderizará página por página dentro de la página.",
+            "required": false,
+            "conditional_logic": false,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "return_format": "array",
+            "library": "all",
+            "mime_types": "pdf",
+            "min_size": 0,
+            "max_size": 0
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "page_template",
+                "operator": "==",
+                "value": "page-catalogo-pdf.php"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "modified": 1782025343
+}
