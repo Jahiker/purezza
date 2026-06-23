@@ -35,7 +35,11 @@ jobs:
             --rsync-path="sudo rsync" \
             ./ "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ secrets.VPS_THEME_PATH }}/"
 
-      - name: Fix ownership + flush cache
+      - name: Fix ownership
         run: |
+          # uid 33 = www-data dentro y fuera del contenedor.
+          # El theme se monta (bind-mount) en el contenedor wp_purezza, así que el
+          # rsync queda activo al instante. OPcache revalida solo en segundos; si
+          # alguna vez hace falta forzar, en el VPS: sudo docker restart wp_purezza
           ssh "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
-            "sudo chown -R www-data:www-data '${{ secrets.VPS_THEME_PATH }}' && cd /var/www/html && wp cache flush --allow-root || true"
+            "sudo chown -R 33:33 '${{ secrets.VPS_THEME_PATH }}'"

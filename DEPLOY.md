@@ -4,8 +4,14 @@ Este theme se despliega a producción automáticamente con **GitHub Actions**:
 cada `push` a `main` sincroniza el theme al VPS por `rsync` sobre SSH.
 
 ```
-push a main ─▶ GitHub Actions ─▶ rsync ─▶ /var/www/html/wp-content/themes/hello-theme-child-master
+push a main ─▶ GitHub Actions ─▶ rsync ─▶ /opt/wpstack/sites/purezza/wp-content/themes/hello-theme-child-master
 ```
+
+> **Nota (2026-06-23):** purezza pasó de Apache (`/var/www/html`) a un **contenedor Docker**
+> (`wp_purezza` en `/opt/wpstack`). El theme vive en un *bind-mount*, así que el rsync sigue
+> funcionando igual; solo cambió la **ruta destino** (ver secret `VPS_THEME_PATH` abajo).
+> Es **provisional**: cuando purezza migre al VPS nuevo, basta actualizar `VPS_HOST` y
+> `VPS_THEME_PATH` a ese servidor — el mismo pipeline sirve.
 
 ## Puesta en marcha (una sola vez)
 
@@ -25,7 +31,7 @@ En GitHub → **Settings → Secrets and variables → Actions → New repositor
 |---|---|
 | `VPS_HOST` | `148.230.81.150` |
 | `VPS_USER` | `ubuntu` |
-| `VPS_THEME_PATH` | `/var/www/html/wp-content/themes/hello-theme-child-master` |
+| `VPS_THEME_PATH` | `/opt/wpstack/sites/purezza/wp-content/themes/hello-theme-child-master` |
 | `VPS_SSH_KEY` | contenido **completo** de la clave privada de deploy (ver abajo) |
 
 La clave privada de deploy ya está generada en tu máquina en `~/.ssh/purezza-deploy`
